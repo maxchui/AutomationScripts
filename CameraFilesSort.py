@@ -10,25 +10,25 @@ from Constants import CAMERA_FOLDER_NAME
 
 
 def main():
-    # Initialise logging parameters
-    LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
-    logging.basicConfig(level=logging.DEBUG,
-                        filename=f'{os.getcwd()}/logs/CameraFilesSort_{datetime.now().strftime("%d-%m-%Y_%H:%M:%S")}.log',
-                        filemode='w', format=LOG_FORMAT)
-
     root = tk.Tk()
     # Hide the root window
     root.withdraw()
 
-    # Locate the base folder path
+    # Ask the user where to save the log files
     base_folder_path = ''
     try:
         base_folder_path = filedialog.askdirectory(
             title='Please select the folder where you have placed the image files')
+        os.mkdir(f'{base_folder_path}/logs')
     except Exception as e:
         logging.exception("message")
     finally:
-        logging.debug(f'User selected folder, path = {base_folder_path}')
+        # Initialise logging parameters
+        LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
+        logging.basicConfig(level=logging.DEBUG,
+                            filename=f'{base_folder_path}/logs/CameraFilesSort_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.log',
+                            filemode='w', format=LOG_FORMAT)
+        logging.debug(f'Started log file in path = {base_folder_path}')
 
     file_entries = os.listdir(base_folder_path)
 
@@ -65,3 +65,4 @@ def main():
             else:
                 logging.error(f'Extension {file_extension} does not exist in the mapping table (entry={entry})')
 
+    logging.info("Terminating program")
