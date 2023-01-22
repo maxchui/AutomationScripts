@@ -19,7 +19,10 @@ def main():
     try:
         base_folder_path = filedialog.askdirectory(
             title='Please select the folder where you have placed the image files')
-        os.mkdir(f'{base_folder_path}/logs')
+
+        if not os.path.exists(base_folder_path+"/logs"):
+            logging.debug(f'Log folder does not exist, creating log directory')
+            os.mkdir(f'{base_folder_path}/logs')
     except Exception as e:
         logging.exception("message")
     finally:
