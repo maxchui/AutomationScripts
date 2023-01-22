@@ -10,7 +10,7 @@ from tkinter import filedialog
 
 # Initialise logging parameters
 LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
-logging.basicConfig(level=logging.ERROR,
+logging.basicConfig(level=logging.DEBUG,
                     filename=f'{os.getcwd()}/logs/CameraFilesSort_{datetime.now().strftime("%d-%m-%Y_%H:%M:%S")}.log',
                     filemode='w', format=LOG_FORMAT)
 
