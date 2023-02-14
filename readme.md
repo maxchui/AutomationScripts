@@ -15,7 +15,7 @@ Before running the script, please move the files from the SD card into a local f
 executed, 3 separate folders (i.e., `RAW`,`JPG`,`HIF`) will be created and images with the corresponding type would be
 relocated into the folder.
 
-Logs are in the aptly named `logs` folder.
+Logs are in the aptly named `Logs` folder.
 
 ## Contributing
 

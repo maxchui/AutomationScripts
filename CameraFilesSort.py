@@ -30,8 +30,8 @@ def main():
     LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
     logging.basicConfig(level=logging.DEBUG,
                         handlers=[logging.FileHandler(
-                            f'{base_folder_path}/logs/CameraFilesSort_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.log'),
-                                  logging.StreamHandler()],
+                            f'{base_folder_path}/Logs/CameraFilesSort_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.log'),
+                            logging.StreamHandler()],
                         format=LOG_FORMAT, force=True)
     logger = logging.getLogger(__name__)
     print(logger)
