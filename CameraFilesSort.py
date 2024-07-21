@@ -1,95 +1,66 @@
-import logging.config
-import os
+import logging
 import shutil
-import tkinter as tk
 from datetime import datetime
+import tkinter as tk
 from tkinter import filedialog
+from pathlib import Path
 
-from Constants import CAMERA_FILE_TO_FOLDER_MAPPING
-from Constants import CAMERA_FOLDER_NAME
+# Import constants from your separate file
+from Constants import CAMERA_FILE_TO_FOLDER_MAPPING, CAMERA_FOLDER_NAME
 
+def setup_logging(base_folder):
+    log_directory = base_folder / "logs"
+    log_directory.mkdir(exist_ok=True)
+    log_file = log_directory / f"CameraFilesSort_{datetime.now().strftime('%d-%m-%Y_%H-%M-%S')}.log"
+    logging.basicConfig(level=logging.DEBUG,
+                        handlers=[logging.FileHandler(str(log_file)),
+                                  logging.StreamHandler()],
+                        format='%(asctime)s %(levelname)s: %(message)s', force=True)
+    return logging.getLogger(__name__)
+
+def create_folder_if_not_exists(folder):
+    if not folder.exists():
+        folder.mkdir()
+        logging.debug(f'Folder {folder} created.')
+
+def handle_files(base_folder):
+    file_entries = list(base_folder.iterdir())
+    if not file_entries:
+        logging.error("The folder is empty. Terminating...")
+        quit()
+    
+    # Create necessary folders based on existing file types
+    detected_extensions = {entry.suffix[1:].upper() for entry in file_entries if entry.is_file()}
+    for extension in detected_extensions:
+        if extension in CAMERA_FILE_TO_FOLDER_MAPPING:
+            folder_name = CAMERA_FILE_TO_FOLDER_MAPPING[extension]
+            if folder_name not in ['MP4', 'JPG']:  # Skip initial creation for MP4 and JPG
+                folder = base_folder / folder_name
+                create_folder_if_not_exists(folder)
+
+    # Move files
+    for entry in file_entries:
+        if entry.is_file():
+            file_extension = entry.suffix[1:].upper()
+            if file_extension in CAMERA_FILE_TO_FOLDER_MAPPING:
+                destination_folder = base_folder / CAMERA_FILE_TO_FOLDER_MAPPING[file_extension]
+                create_folder_if_not_exists(destination_folder)  # Create the folder here if not exists
+                try:
+                    shutil.move(str(entry), str(destination_folder))
+                    logging.debug(f'Moving file {entry} to {destination_folder}')
+                except Exception as e:
+                    logging.error(f'Failed to move file {entry}: {str(e)}')
+            else:
+                logging.error(f'Extension {file_extension} is not recognized (file={entry})')
 
 def main():
     root = tk.Tk()
-    # Hide the root window
     root.withdraw()
-
-    # Ask the user where to save the log files
-    base_folder_path = ''
-    try:
-        base_folder_path = filedialog.askdirectory(
-            title='Please select the folder where you have placed the image files')
-
-        if not os.path.exists(base_folder_path + "/logs"):
-            logging.debug(f'Log folder does not exist, creating log directory')
-            os.mkdir(f'{base_folder_path}/logs')
-    except Exception as e:
-        logging.exception("message")
-
-    # Initialise logging parameters
-    LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
-    logging.basicConfig(level=logging.DEBUG,
-                        handlers=[logging.FileHandler(
-                            f'{base_folder_path}/Logs/CameraFilesSort_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.log'),
-                            logging.StreamHandler()],
-                        format=LOG_FORMAT, force=True)
-    logger = logging.getLogger(__name__)
-    print(logger)
-    logger.debug(f'Started log file in path = {base_folder_path}')
-
-    file_entries = os.listdir(base_folder_path)
-
-    # Terminate the program if the folder has nothing in it (the user is supposed to move the files into the folder first)
-    if len(file_entries) == 0:
-        logger.error("The folder is empty. Terminating...")
-        quit()
-
-    for i in CAMERA_FOLDER_NAME:
-        # MP4 and JPG folder will be created later when we encounter an MP4 or JPG file
-        if i in ['MP4','JPG']:
-            continue
-        if i not in file_entries:
-            try:
-                os.mkdir(base_folder_path + '/' + i)
-                logger.debug(f'Folder {i} does not exist, creating directory {i}')
-            except:
-                logger.exception("message")
-
-    # Check if there are MP4 files in the root folder and create MP4 folder if needed
-    mp4_exists = any(os.path.splitext(entry)[1].strip(".").upper() == 'MP4' for entry in file_entries)
-    if mp4_exists and 'MP4' not in file_entries:
-        try:
-            os.mkdir(base_folder_path + '/MP4')
-            logger.debug(f'MP4 folder does not exist, creating directory MP4')
-        except:
-            logger.exception("message")
-
-    # Check if there are JPG files in the root folder and create JPG folder if needed
-    jpg_exists = any(os.path.splitext(entry)[1].strip(".").upper() in ['JPG', 'JPEG'] for entry in file_entries)
-    if jpg_exists and 'JPG' not in file_entries:
-        try:
-            os.mkdir(base_folder_path + '/JPG')
-            logger.debug(f'JPG folder does not exist, creating directory JPG')
-        except:
-            logger.exception("message")
-
-    # Time to move dem files :D
-    for entry in os.listdir(base_folder_path):
-        # Ignore system files
-        if entry == '.DS_Store':
-            continue
-
-        if os.path.isfile(os.path.join(base_folder_path, entry)):
-            file_extension = os.path.splitext(os.path.join(base_folder_path, entry))[1].strip(".")
-            if file_extension.strip(".") in CAMERA_FILE_TO_FOLDER_MAPPING:
-                try:
-                    source_address = os.path.join(base_folder_path, entry)
-                    destination_address = os.path.join(base_folder_path, CAMERA_FILE_TO_FOLDER_MAPPING[file_extension])
-                    shutil.move(source_address, destination_address)
-                    logger.debug(f'Moving file {entry} from {source_address} to {destination_address}')
-                except:
-                    logger.exception("message")
-            else:
-                logger.error(f'Extension {file_extension} does not exist in the mapping table (entry={entry})')
-
-    logger.info("Terminating program")
+    base_folder_path = filedialog.askdirectory(title='Select the folder for sorting files')
+    if not base_folder_path:
+        logging.error("No folder selected. Exiting...")
+        return
+    base_folder = Path(base_folder_path)
+    logger = setup_logging(base_folder)
+    handle_files(base_folder)
+    logger.info("Termination of program.")
