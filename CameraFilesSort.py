@@ -44,14 +44,34 @@ def main():
         logger.error("The folder is empty. Terminating...")
         quit()
 
-    # Create the sub-folders to store the files with the same file extension
     for i in CAMERA_FOLDER_NAME:
+        # MP4 and JPG folder will be created later when we encounter an MP4 or JPG file
+        if i in ['MP4','JPG']:
+            continue
         if i not in file_entries:
             try:
                 os.mkdir(base_folder_path + '/' + i)
                 logger.debug(f'Folder {i} does not exist, creating directory {i}')
             except:
                 logger.exception("message")
+
+    # Check if there are MP4 files in the root folder and create MP4 folder if needed
+    mp4_exists = any(os.path.splitext(entry)[1].strip(".").upper() == 'MP4' for entry in file_entries)
+    if mp4_exists and 'MP4' not in file_entries:
+        try:
+            os.mkdir(base_folder_path + '/MP4')
+            logger.debug(f'MP4 folder does not exist, creating directory MP4')
+        except:
+            logger.exception("message")
+
+    # Check if there are JPG files in the root folder and create JPG folder if needed
+    jpg_exists = any(os.path.splitext(entry)[1].strip(".").upper() in ['JPG', 'JPEG'] for entry in file_entries)
+    if jpg_exists and 'JPG' not in file_entries:
+        try:
+            os.mkdir(base_folder_path + '/JPG')
+            logger.debug(f'JPG folder does not exist, creating directory JPG')
+        except:
+            logger.exception("message")
 
     # Time to move dem files :D
     for entry in os.listdir(base_folder_path):
