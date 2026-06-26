@@ -1,2 +1,17 @@
-/logs/
-/dist/
+# Logs produced by photosort runs
+logs/
+
+# Build / packaging artifacts
+dist/
+build/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
