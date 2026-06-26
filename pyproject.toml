@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "photosort"
+version = "0.1.0"
+description = "Sort camera photo/video dumps into per-type folders (RAW, JPG, HIF, MP4)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "maxchui" }]
+keywords = ["photography", "raw", "sony", "file-organizer", "cli"]
+
+[project.urls]
+Homepage = "https://github.com/maxchui/AutomationScripts"
+
+[project.scripts]
+photosort = "photosort.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/photosort"]
