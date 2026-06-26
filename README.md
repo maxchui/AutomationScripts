@@ -41,6 +41,27 @@ each file into the one matching its extension. Unrecognised files are left
 untouched. A timestamped log of every run is written to a `logs/` folder inside
 the target directory.
 
+### Right-click in Finder (macOS)
+
+You can sort a folder straight from Finder via a Quick Action. After installing
+the `photosort` command (above), run:
+
+```bash
+./integrations/macos/install.sh
+```
+
+Then right-click any folder in Finder and choose
+**Quick Actions → Sort Photos with PhotoSort**. A notification appears when it
+finishes. (If the action doesn't show up right away, enable it under *System
+Settings → Keyboard → Keyboard Shortcuts → Services → Files and Folders*, or log
+out and back in.)
+
+To remove it:
+
+```bash
+./integrations/macos/uninstall.sh
+```
+
 ## Supported file types
 
 | Folder | Extensions |
